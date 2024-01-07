@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using TronClient.Request.Types;
 using TronNet;
 using TronNet.ABI;
+using TronNet.Crypto;
 
 namespace TronClient.Request
 {
@@ -14,9 +15,13 @@ namespace TronClient.Request
         {
             var parametersHexString = message.Parameters.ToParametersHexString();
             
+            var contractAddressByte = Base58Encoder.DecodeFromBase58Check(contractAddress);
+            var contractAddressHex = contractAddressByte.ToHex();
+            
             return new TriggerConstantContractRequest
             {
-                contract_address = contractAddress,
+                owner_address = "410000000000000000000000000000000000000000",
+                contract_address = contractAddressHex,
                 function_selector = message.FunctionSelector,
                 parameter = parametersHexString,
                 visible = message.Visible
@@ -56,13 +61,28 @@ namespace TronClient.Request
     
     internal static class ParameterExtension
     {
-        internal static string ToParametersHexString(this IEnumerable<KeyValuePair<string, string>> parameters)
+        internal static string? ToParametersHexString(this IEnumerable<KeyValuePair<string, string>>? parameters)
         {
+            if(parameters == null || !parameters.Any())
+                return null;
+            
             var parametersHexString = new StringBuilder();
             foreach (var param in parameters)
             {
                 var abiType = ABIType.CreateABIType(param.Key);
-                var paramInHex = abiType.Encode(param.Value).ToHex();
+
+                string paramInHex;
+                if (abiType is AddressType)
+                {
+                    var addressByte = Base58Encoder.DecodeFromBase58Check(param.Value);
+                    addressByte = addressByte.Slice(1, addressByte.Length);
+                    var addressHex = addressByte.ToHex();
+                    paramInHex = abiType.Encode(addressHex).ToHex();
+                }
+                else
+                {
+                    paramInHex = abiType.Encode(param.Value).ToHex();
+                }
                 
                 parametersHexString.Append(paramInHex);
             }
