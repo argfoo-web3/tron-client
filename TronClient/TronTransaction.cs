@@ -64,7 +64,7 @@ namespace TronClient
     public class BlockHeader
     {
         public Raw raw_data;
-        public byte[] witness_signature;
+        public string witness_signature;
     }
 
     public class Raw
@@ -74,8 +74,8 @@ namespace TronClient
         public byte[] parentHash;
         public long number;
         public long witness_id;
-        public byte[] witness_address;
+        public string witness_address;
         public int version;
-        public byte[] accountStateRoot;
+        public byte[]? accountStateRoot;
     }
 }
