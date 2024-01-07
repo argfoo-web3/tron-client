@@ -1,3 +1,5 @@
+using Google.Protobuf;
+
 namespace TronClient
 {
     public class TransactionExtension
@@ -77,5 +79,14 @@ namespace TronClient
         public string witness_address;
         public int version;
         public byte[]? accountStateRoot;
+    }
+    
+    public class ConstantTransactionResponse
+    {
+        public Result result;
+        public long energy_used;
+        public long? energy_penalty;
+        public string[] constant_result; //bytes in hex
+        public Transaction transaction;
     }
 }
