@@ -2,7 +2,7 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TronClient", "TronClient\TronClient.csproj", "{90B42851-8A8A-463A-A611-0CBDC60023F0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TronClientTest", "..\TronClientTest\TronClientTest\TronClientTest.csproj", "{FF1BCC6E-DDEC-464A-BD3C-BDE8A40D2BE9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TronClientTest", "TronClientTest\TronClientTest.csproj", "{DAAB3362-1573-4332-9D99-FFC201FE89C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -14,9 +14,9 @@ Global
 		{90B42851-8A8A-463A-A611-0CBDC60023F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{90B42851-8A8A-463A-A611-0CBDC60023F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{90B42851-8A8A-463A-A611-0CBDC60023F0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FF1BCC6E-DDEC-464A-BD3C-BDE8A40D2BE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FF1BCC6E-DDEC-464A-BD3C-BDE8A40D2BE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FF1BCC6E-DDEC-464A-BD3C-BDE8A40D2BE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FF1BCC6E-DDEC-464A-BD3C-BDE8A40D2BE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DAAB3362-1573-4332-9D99-FFC201FE89C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DAAB3362-1573-4332-9D99-FFC201FE89C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DAAB3362-1573-4332-9D99-FFC201FE89C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DAAB3362-1573-4332-9D99-FFC201FE89C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
