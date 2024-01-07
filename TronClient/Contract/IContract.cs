@@ -4,7 +4,7 @@ namespace TronClient
 {
     public interface IContract
     {
-        Task<BroadcastResponse> SendContractAsync(IWallet wallet, TronSmartContractFunctionMessage message);
-        Task<T> CallContractAsync<T>(TronConstantContractFunctionMessage message);
+        Task<BroadcastResponse> SendAsync(IWallet wallet, TronSmartContractFunctionMessage message);
+        Task<T> CallAsync<T>(TronConstantContractFunctionMessage message);
     }
 }

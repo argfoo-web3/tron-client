@@ -20,7 +20,7 @@ namespace TronClient
             _requestFactory = requestFactory;
         }
 
-        public async Task<BroadcastResponse> SendContractAsync(IWallet wallet, TronSmartContractFunctionMessage message)
+        public async Task<BroadcastResponse> SendAsync(IWallet wallet, TronSmartContractFunctionMessage message)
         {
             var transaction = await ExecuteTriggerSmartContractAsync(wallet, message);
 
@@ -31,7 +31,7 @@ namespace TronClient
             return await BroadcastTransactionAsync(transaction, tronSignature);
         }
         
-        public async Task<T> CallContractAsync<T>(TronConstantContractFunctionMessage message)
+        public async Task<T> CallAsync<T>(TronConstantContractFunctionMessage message)
         {
             return await ExecuteTriggerConstantContractAsync<T>(message);
         }
