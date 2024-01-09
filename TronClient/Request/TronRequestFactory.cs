@@ -70,24 +70,21 @@ namespace TronClient.Request
             foreach (var param in parameters)
             {
                 var abiType = ABIType.CreateABIType(param.Key);
-
-                string paramInHex;
-                if (abiType is AddressType)
-                {
-                    var addressByte = Base58Encoder.DecodeFromBase58Check(param.Value);
-                    addressByte = addressByte.Slice(1, addressByte.Length);
-                    var addressHex = addressByte.ToHex();
-                    paramInHex = abiType.Encode(addressHex).ToHex();
-                }
-                else
-                {
-                    paramInHex = abiType.Encode(param.Value).ToHex();
-                }
+                var paramInHex = abiType is AddressType ? EncodeTronAddress(abiType, param.Value) : abiType.Encode(param.Value).ToHex();
                 
                 parametersHexString.Append(paramInHex);
             }
 
             return parametersHexString.ToString();
+        }
+        
+        private static string EncodeTronAddress(ABIType abiType, string value)
+        {
+            var addressByte = Base58Encoder.DecodeFromBase58Check(value);
+            addressByte = addressByte.Slice(1, addressByte.Length);
+            var addressHex = addressByte.ToHex();
+
+            return abiType.Encode(addressHex).ToHex();
         }
     }
 }
