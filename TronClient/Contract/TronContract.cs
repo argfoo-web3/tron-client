@@ -3,6 +3,8 @@ using HDWallet.Tron;
 using TronClient.Http;
 using TronClient.Request;
 using TronNet;
+using TronNet.ABI.FunctionEncoding;
+using TronNet.ABI.FunctionEncoding.Attributes;
 
 namespace TronClient
 {
@@ -31,9 +33,12 @@ namespace TronClient
             return await BroadcastTransactionAsync(transaction, tronSignature);
         }
         
-        public async Task<T> CallAsync<T>(TronConstantContractFunctionMessage message)
+        public async Task<T> CallAsync<T>(TronConstantContractFunctionMessage message) where T : IFunctionOutputDTO, new()
         {
-            return await ExecuteTriggerConstantContractAsync<T>(message);
+            var response = await ExecuteTriggerConstantContractAsync(message);
+            var dto = new FunctionCallDecoder().DecodeFunctionOutput<T>(response.constant_result[0]);
+
+            return dto;
         }
 
         private async Task<Transaction> ExecuteTriggerSmartContractAsync(IWallet wallet, TronSmartContractFunctionMessage message)
@@ -45,11 +50,11 @@ namespace TronClient
             return transactionExtension.transaction;
         }
         
-        private async Task<T> ExecuteTriggerConstantContractAsync<T>(TronConstantContractFunctionMessage message)
+        private async Task<ConstantTransactionResponse> ExecuteTriggerConstantContractAsync(TronConstantContractFunctionMessage message)
         {
             var transactionRequest = _requestFactory.CreateTriggerConstantContractRequest(_contractAddress, message);
 
-            return await SendHttpRequestAsync<T>("wallet/triggerconstantcontract", transactionRequest);
+            return await SendHttpRequestAsync<ConstantTransactionResponse>("wallet/triggerconstantcontract", transactionRequest);
         }
 
         private static TronSignature SignTransaction(IWallet wallet, Transaction transaction)

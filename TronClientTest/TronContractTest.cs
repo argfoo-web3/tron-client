@@ -1,7 +1,11 @@
 using System.Numerics;
 using HDWallet.Tron;
 using TronClient;
+using TronNet;
 using TronNet.ABI;
+using TronNet.ABI.FunctionEncoding;
+using TronNet.ABI.FunctionEncoding.Attributes;
+using Parameter = TronNet.ABI.Model.Parameter;
 
 namespace TronClientTest
 {
@@ -15,38 +19,43 @@ namespace TronClientTest
         {
             _tronClient = new TronClient.TronClient(ApiUrl, "");
         }
+        
+        [FunctionOutput]
+        public class SymbolDto : IFunctionOutputDTO
+        {
+            [Parameter("string", 1)]
+            public string Symbol { get; set; }
+        }
 
         [Test]
         public async Task Test_TronTriggerConstantContractSymbol()
         {
             var usdtContract = _tronClient.GetContract("TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs");
-            var response = await usdtContract.CallAsync<ConstantTransactionResponse>(new TronConstantContractFunctionMessage
+            var result = await usdtContract.CallAsync<SymbolDto>(new TronConstantContractFunctionMessage
             {
                 FunctionSelector = "symbol()"
             });
             
-            var symbolInBytes = Convert.FromHexString(response.constant_result[0]);
-            symbolInBytes = symbolInBytes.Slice(32);
-            
-            var symbolAbi = ABIType.CreateABIType("string");
-            var symbolStr = symbolAbi.Decode<string>(symbolInBytes);
-            
-            Assert.That(symbolStr, Is.EqualTo("USDT"));
+            Assert.That(result.Symbol, Is.EqualTo("USDT"));
+        }
+        
+        [FunctionOutput]
+        public class DecimalsDto : IFunctionOutputDTO
+        {
+            [Parameter("uint256", 1)]
+            public BigInteger Decimals { get; set; }
         }
         
         [Test]
         public async Task Test_TronTriggerConstantContractDecimals()
         {
             var usdtContract = _tronClient.GetContract("TG3XXyExBkPp9nzdajDZsozEu4BkaSJozs");
-            var response = await usdtContract.CallAsync<ConstantTransactionResponse>(new TronConstantContractFunctionMessage
+            var response = await usdtContract.CallAsync<DecimalsDto>(new TronConstantContractFunctionMessage
             {
                 FunctionSelector = "decimals()"
             });
-            
-            var decimalsAbi = ABIType.CreateABIType("uint256");
-            var decimals = decimalsAbi.Decode<BigInteger>(response.constant_result[0]);
 
-            Assert.True(decimals.Equals(6));
+            Assert.That((int)response.Decimals, Is.EqualTo(6));
         }
         
         [Test, Ignore("This test costs gas fees on shasta!")]
