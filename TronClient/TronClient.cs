@@ -14,9 +14,9 @@ namespace TronClient
             _requestFactory = new TronRequestFactory();
         }
 
-        public IContract GetContract(string contractAddress)
+        public IContract? GetContract(string contractAddress)
         {
-            return new TronContract(_httpClient, _requestFactory, contractAddress);
+            return string.IsNullOrEmpty(contractAddress) ? null : new TronContract(_httpClient, _requestFactory, contractAddress);
         }
         
         public async Task<BlockExtension> GetNowBlockAsync()
