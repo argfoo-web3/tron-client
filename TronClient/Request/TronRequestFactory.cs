@@ -1,43 +1,40 @@
-using System.Text;
 using HDWallet.Core;
 using HDWallet.Tron;
+using Nethereum.Contracts;
+using Nethereum.Contracts.MessageEncodingServices;
+using Nethereum.RPC.Eth.DTOs;
 using Newtonsoft.Json;
 using TronClient.Request.Types;
 using TronNet;
-using TronNet.ABI;
 using TronNet.Crypto;
 
 namespace TronClient.Request
 {
     public class TronRequestFactory : IRequestFactory
     {
-        public TriggerConstantContractRequest CreateTriggerConstantContractRequest(string contractAddress, TronConstantContractFunctionMessage message)
+        public TriggerConstantContractRequest CreateTriggerConstantContractRequest<TFunctionMessage>(string contractAddress, TronConstantContractFunctionMessage<TFunctionMessage> message) where TFunctionMessage : FunctionMessage
         {
-            var parametersHexString = message.Parameters.ToParametersHexString();
-            
-            var contractAddressByte = Base58Encoder.DecodeFromBase58Check(contractAddress);
-            var contractAddressHex = contractAddressByte.ToHex();
-            
+            var contractAddressHex = Base58AddressToHex(contractAddress);
+            var callInput = GetFunctionMessageData(contractAddress, message);
+
             return new TriggerConstantContractRequest
             {
                 owner_address = "410000000000000000000000000000000000000000",
                 contract_address = contractAddressHex,
-                function_selector = message.FunctionSelector,
-                parameter = parametersHexString,
+                data = callInput.Data,
                 visible = message.Visible
             };
         }
-
-        public TriggerSmartContractRequest CreateTriggerSmartContractRequest(IWallet wallet, string contractAddress, TronSmartContractFunctionMessage message)
+        
+        public TriggerSmartContractRequest CreateTriggerSmartContractRequest<TFunctionMessage>(IWallet wallet, string contractAddress, TronSmartContractFunctionMessage<TFunctionMessage> message) where TFunctionMessage : FunctionMessage
         {
-            var parametersHexString = message.Parameters.ToParametersHexString();
+            var callInput = GetFunctionMessageData(contractAddress, message);
             
             return new TriggerSmartContractRequest
             {
                 owner_address = wallet.Address,
                 contract_address = contractAddress,
-                function_selector = message.FunctionSelector,
-                parameter = parametersHexString,
+                data = callInput.Data,
                 fee_limit = message.FeeLimit,
                 call_value = message.CallValue,
                 call_token_value = message.CallTokenValue,
@@ -57,34 +54,20 @@ namespace TronClient.Request
                 visible = transaction.visible
             };
         }
-    }
-    
-    internal static class ParameterExtension
-    {
-        internal static string? ToParametersHexString(this IEnumerable<KeyValuePair<string, string>>? parameters)
+        
+        private static CallInput GetFunctionMessageData<TFunctionMessage>(string contractAddress,
+            TronConstantContractFunctionMessage<TFunctionMessage> message) where TFunctionMessage : FunctionMessage
         {
-            if(parameters == null || !parameters.Any())
-                return null;
-            
-            var parametersHexString = new StringBuilder();
-            foreach (var param in parameters)
-            {
-                var abiType = ABIType.CreateABIType(param.Key);
-                var paramInHex = abiType is AddressType ? EncodeTronAddress(abiType, param.Value) : abiType.Encode(param.Value).ToHex();
-                
-                parametersHexString.Append(paramInHex);
-            }
-
-            return parametersHexString.ToString();
+            var functionMessageEncodingService = new FunctionMessageEncodingService<TFunctionMessage>();
+            functionMessageEncodingService.SetContractAddress(contractAddress);
+            functionMessageEncodingService.DefaultAddressFrom = null;
+            return functionMessageEncodingService.CreateCallInput(message.FunctionMessage);
         }
         
-        private static string EncodeTronAddress(ABIType abiType, string value)
+        private static string Base58AddressToHex(string contractAddress)
         {
-            var addressByte = Base58Encoder.DecodeFromBase58Check(value);
-            addressByte = addressByte.Slice(1, addressByte.Length);
-            var addressHex = addressByte.ToHex();
-
-            return abiType.Encode(addressHex).ToHex();
+            var contractAddressByte = Base58Encoder.DecodeFromBase58Check(contractAddress);
+            return contractAddressByte.ToHex();
         }
     }
 }

@@ -1,5 +1,6 @@
 using HDWallet.Core;
 using HDWallet.Tron;
+using Nethereum.Contracts;
 using TronClient.Http;
 using TronClient.Request;
 using TronNet;
@@ -22,7 +23,7 @@ namespace TronClient
             _requestFactory = requestFactory;
         }
 
-        public async Task<BroadcastResponse> SendAsync(IWallet wallet, TronSmartContractFunctionMessage message)
+        public async Task<BroadcastResponse> SendAsync<TFunctionMessage>(IWallet wallet, TronSmartContractFunctionMessage<TFunctionMessage> message) where TFunctionMessage : FunctionMessage
         {
             var transaction = await ExecuteTriggerSmartContractAsync(wallet, message);
 
@@ -33,15 +34,15 @@ namespace TronClient
             return await BroadcastTransactionAsync(transaction, tronSignature);
         }
         
-        public async Task<T> CallAsync<T>(TronConstantContractFunctionMessage message) where T : IFunctionOutputDTO, new()
+        public async Task<TFunctionOutputDto> CallAsync<TFunctionMessage, TFunctionOutputDto>(TronConstantContractFunctionMessage<TFunctionMessage> message) where TFunctionOutputDto : IFunctionOutputDTO, new() where TFunctionMessage : FunctionMessage
         {
             var response = await ExecuteTriggerConstantContractAsync(message);
-            var dto = new FunctionCallDecoder().DecodeFunctionOutput<T>(response.constant_result[0]);
+            var dto = new FunctionCallDecoder().DecodeFunctionOutput<TFunctionOutputDto>(response.constant_result[0]);
 
             return dto;
         }
 
-        private async Task<Transaction> ExecuteTriggerSmartContractAsync(IWallet wallet, TronSmartContractFunctionMessage message)
+        private async Task<Transaction> ExecuteTriggerSmartContractAsync<TFunctionMessage>(IWallet wallet, TronSmartContractFunctionMessage<TFunctionMessage> message) where TFunctionMessage : FunctionMessage
         {
             var transactionRequest = _requestFactory.CreateTriggerSmartContractRequest(wallet, _contractAddress, message);
 
@@ -50,7 +51,7 @@ namespace TronClient
             return transactionExtension.transaction;
         }
         
-        private async Task<ConstantTransactionResponse> ExecuteTriggerConstantContractAsync(TronConstantContractFunctionMessage message)
+        private async Task<ConstantTransactionResponse> ExecuteTriggerConstantContractAsync<TFunctionMessage>(TronConstantContractFunctionMessage<TFunctionMessage> message) where TFunctionMessage : FunctionMessage
         {
             var transactionRequest = _requestFactory.CreateTriggerConstantContractRequest(_contractAddress, message);
 
