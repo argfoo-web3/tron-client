@@ -15,10 +15,16 @@ namespace TronClient
 
     public class Transaction
     {
+        public ContractReturn[]? ret;
         public bool visible;
         public string txID;
         public string raw_data_hex;
         public RawData raw_data;
+    }
+    
+    public class ContractReturn
+    {
+        public string? contractRet;
     }
 
     public class RawData
@@ -88,5 +94,26 @@ namespace TronClient
         public long? energy_penalty;
         public string[] constant_result; //bytes in hex
         public Transaction transaction;
+    }
+    
+    public class TransactionInfo
+    {
+        public string id;
+        public long fee;
+        public long blockNumber;
+        public long blockTimeStamp;
+        public string[] contractResult;
+        public ResourceReceipt receipt;
+    }
+    
+    public class ResourceReceipt
+    {
+        public long? energy_usage;
+        public long? energy_fee;
+        public long? origin_energy_usage;
+        public long? energy_usage_total;
+        public long? net_usage;
+        public long? net_fee;
+        public long? energy_penalty_total;
     }
 }
