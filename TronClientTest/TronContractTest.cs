@@ -69,6 +69,20 @@ namespace TronClientTest
             Assert.That((int)response.Decimals, Is.EqualTo(6));
         }
         
+        [Test]
+        public async Task Test_TronTriggerConstantContractSymbolUsingPrivateNet()
+        {
+            var tronClient = new TronClient.TronClient("https://fb48-202-156-61-238.ngrok-free.app", "bb9a7a1e-9bb5-4807-a4ba-6d0813a9b7f7");
+            
+            var usdtContract = tronClient.GetContract("TLEBx2H4YMQQx4CSyQWmWqoXXDqv6RUSy7");
+            var result = await usdtContract.CallAsync<SymbolFunctionMessage, SymbolDto>(new TronConstantContractFunctionMessage<SymbolFunctionMessage>
+            {
+                FunctionMessage = new SymbolFunctionMessage()
+            });
+            
+            Assert.That(result.Symbol, Is.EqualTo("USDT"));
+        }
+        
         [Nethereum.ABI.FunctionEncoding.Attributes.Function("commit", "tuple[]")]
         public class CommitFunctionMessage: FunctionMessage
         {
