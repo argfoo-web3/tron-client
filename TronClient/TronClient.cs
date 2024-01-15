@@ -21,7 +21,7 @@ namespace TronClient
         
         public async Task<BlockExtension> GetNowBlockAsync()
         {
-            return await SendHttpRequestAsync<BlockExtension>("wallet/getnowblock", null);
+            return await SendHttpRequestAsync<BlockExtension>("wallet/getnowblock");
         }
         
         public async Task<BlockExtension> GetBlockByNumAsync(long blockNumber)
@@ -38,8 +38,35 @@ namespace TronClient
         {
             return await SendHttpRequestAsync<TransactionInfo>("wallet/gettransactioninfobyid", new { value = transactionId });
         }
-        
-        private async Task<T> SendHttpRequestAsync<T>(string uri, object? req)
+
+        public async Task<long> GetLatestEnergyPrice()
+        {
+            var energyPrices = await SendHttpRequestAsync<EnergyPrices>("wallet/getenergyprices");
+            var datePriceList = energyPrices.prices.Split(",");
+
+            long lastDate = 0;
+            long lastPrice = 0;
+            var now = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            foreach (var data in datePriceList)
+            {
+                var datePrice = data.Split(":");
+                if (datePrice.Length != 2 || !long.TryParse(datePrice[0], out var date))
+                {
+                    continue;
+                }
+                if (date >= now || date <= lastDate)
+                {
+                    continue;
+                }
+
+                lastDate = date;
+                lastPrice = long.Parse(datePrice[1]);
+            }
+
+            return lastPrice;
+        }
+
+        private async Task<T> SendHttpRequestAsync<T>(string uri, object? req = null)
         {
             return await _httpClient.PostDeserializingResponseAsync<T>(uri, req);
         }
