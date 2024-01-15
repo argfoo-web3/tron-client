@@ -1,10 +1,15 @@
+using System.Numerics;
 using Google.Protobuf;
+using TronNet.ABI.FunctionEncoding.Attributes;
 
 namespace TronClient
 {
     public class TransactionExtension
     {
         public Result result;
+        public long? energy_used;
+        public long? energy_penalty;
+        public string[] constant_result; //bytes in hex
         public Transaction transaction;
     }
 
@@ -115,5 +120,10 @@ namespace TronClient
         public long? net_usage;
         public long? net_fee;
         public long? energy_penalty_total;
+    }
+
+    public class EnergyPrices
+    {
+        public string prices;
     }
 }

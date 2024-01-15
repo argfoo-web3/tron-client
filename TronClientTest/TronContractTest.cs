@@ -90,6 +90,35 @@ namespace TronClientTest
             public string Owner { get; set; }
         }
         
+        [Test]
+        public async Task Test_TronTriggerConstantContractCommitGetEnergyUsed()
+        {
+            const string privateStr = "559e591bac0c8b1e039901b127a46a02443b05cf73abbd41c802038e14151fe3";
+            var tronWallet = new TronWallet(privateStr);
+            
+            var commitFunctionMessage = new CommitFunctionMessage
+            {
+                Owner = TronAddressToHex(tronWallet.Address)
+            };
+            
+            var contract = _tronClient.GetContract("TMEmbYxxnAEWpfC1PNaVBx78Y5c2wKDaxp");
+            var energyUsed = await contract.GetEnergyUsed(new TronConstantContractFunctionMessage<CommitFunctionMessage>
+            {
+                FunctionMessage = commitFunctionMessage,
+                Visible = true
+            });
+            
+            Assert.That(energyUsed, Is.GreaterThan(0));
+        }
+        
+        [Test]
+        public async Task Test_TronGetLatestEnergyPrice()
+        {
+            var price = await _tronClient.GetLatestEnergyPrice();
+            
+            Assert.That(price, Is.GreaterThan(0));
+        }
+        
         [Test, Ignore("This test costs gas fees on shasta!")]
         public async Task Test_TronTriggerSmartContractCommit()
         {

@@ -14,13 +14,19 @@ namespace TronClient.Request
     {
         public TriggerConstantContractRequest CreateTriggerConstantContractRequest<TFunctionMessage>(string contractAddress, TronConstantContractFunctionMessage<TFunctionMessage> message) where TFunctionMessage : FunctionMessage
         {
-            var contractAddressHex = Base58AddressToHex(contractAddress);
+            var ownerAddress = Base58Encoder.EncodeFromHex("0000000000000000000000000000000000000000", 65);
+            
+            if (!message.Visible)
+            {
+                ownerAddress = "410000000000000000000000000000000000000000";
+                contractAddress = Base58AddressToHex(contractAddress);
+            }
             var callInput = GetFunctionMessageData(contractAddress, message);
 
             return new TriggerConstantContractRequest
             {
-                owner_address = "410000000000000000000000000000000000000000",
-                contract_address = contractAddressHex,
+                owner_address = ownerAddress,
+                contract_address = contractAddress,
                 data = callInput.Data,
                 visible = message.Visible
             };
@@ -28,11 +34,19 @@ namespace TronClient.Request
         
         public TriggerSmartContractRequest CreateTriggerSmartContractRequest<TFunctionMessage>(IWallet wallet, string contractAddress, TronSmartContractFunctionMessage<TFunctionMessage> message) where TFunctionMessage : FunctionMessage
         {
+            var ownerAddress = wallet.Address;
+            
+            if (!message.Visible)
+            {
+                ownerAddress = Base58AddressToHex(wallet.Address);
+                contractAddress = Base58AddressToHex(contractAddress);
+            }
+            
             var callInput = GetFunctionMessageData(contractAddress, message);
             
             return new TriggerSmartContractRequest
             {
-                owner_address = wallet.Address,
+                owner_address = ownerAddress,
                 contract_address = contractAddress,
                 data = callInput.Data,
                 fee_limit = message.FeeLimit,

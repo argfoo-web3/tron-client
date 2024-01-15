@@ -33,7 +33,7 @@ namespace TronClient
             // Broadcast
             return await BroadcastTransactionAsync(transaction, tronSignature);
         }
-        
+
         public async Task<TFunctionOutputDto> CallAsync<TFunctionMessage, TFunctionOutputDto>(TronConstantContractFunctionMessage<TFunctionMessage> message) where TFunctionOutputDto : IFunctionOutputDTO, new() where TFunctionMessage : FunctionMessage
         {
             var response = await ExecuteTriggerConstantContractAsync(message);
@@ -42,10 +42,16 @@ namespace TronClient
             return dto;
         }
 
+        public async Task<long> GetEnergyUsed<TFunctionMessage>(TronConstantContractFunctionMessage<TFunctionMessage> message) where TFunctionMessage : FunctionMessage
+        {
+            var response = await ExecuteTriggerConstantContractAsync(message);
+
+            return response.energy_used;
+        }
+
         private async Task<Transaction> ExecuteTriggerSmartContractAsync<TFunctionMessage>(IWallet wallet, TronSmartContractFunctionMessage<TFunctionMessage> message) where TFunctionMessage : FunctionMessage
         {
             var transactionRequest = _requestFactory.CreateTriggerSmartContractRequest(wallet, _contractAddress, message);
-
             var transactionExtension = await SendHttpRequestAsync<TransactionExtension>("wallet/triggersmartcontract", transactionRequest);
 
             return transactionExtension.transaction;
